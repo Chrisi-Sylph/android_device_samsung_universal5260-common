@@ -121,7 +121,7 @@ on boot
     chmod 0660 /sys/class/input/input9/enabled    
     chown system system /sys/class/input/input9/enabled
     chmod 0660 /sys/class/input/input9/enabled
-	chown system system /sys/class/input/input10/enabled
+    chown system system /sys/class/input/input10/enabled
     chmod 0660 /sys/class/input/input10/enabled
     chown system system /sys/class/input/input11/enabled
     chmod 0660 /sys/class/input/input11/enabled
@@ -632,11 +632,11 @@ service gpsd /system/bin/gpsd -c /system/etc/gps.xml
     ioprio be 0
 
 # Vibetonz
-service immvibed /system/bin/immvibed
-    class core
-    user vibe
-    group vibe
-    oneshot
+#service immvibed /system/bin/immvibed
+#    class core
+#    user vibe
+#    group vibe
+#    oneshot
 
 # on userdebug and eng builds, enable kgdb on the serial console
 on property:ro.debuggable=1
@@ -649,56 +649,56 @@ service mobex-daemon /system/bin/npsmobex
     group system radio inet sdcard_rw shell
 
 # service for TZPR provisioning version check app
-service scranton_RD /system/bin/scranton_RD
-     class main
-     user root
-     disabled
-     oneshot
+#service scranton_RD /system/bin/scranton_RD
+#     class main
+#     user root
+#     disabled
+#     oneshot
 
 # start for TZPR provisioning version check app
-on property:sys.mobicoredaemon.enable=true
-    start scranton_RD
+#on property:sys.mobicoredaemon.enable=true
+#    start scranton_RD
 
 # MobiCore startup
-service mobicore /system/bin/mcDriverDaemon -r /system/app/FFFFFFFF000000000000000000000001.drbin -r /system/app/mcRegistry/ffffffffd0000000000000000000000a.tlbin
-    class core
-    user system
-    group system
+#service mobicore /system/bin/mcDriverDaemon -r /system/app/FFFFFFFF000000000000000000000001.drbin -r /system/app/mcRegistry/ffffffffd0000000000000000000000a.tlbin
+#    class core
+#    user system
+#    group system
 
 # Secure Storage startup
-service secure_storage /system/bin/secure_storage_daemon
-    class core
-    user system
-    group system
-    disabled
+#service secure_storage /system/bin/secure_storage_daemon
+#    class core
+#    user system
+#    group system
+#    disabled
 
 # CS service
-service cs_service /system/bin/cs
-    class main
-    user system
-    group system
-    disabled
+#service cs_service /system/bin/cs
+#    class main
+#    user system
+#    group system
+#    disabled
 
-on property:sys.mobicoredaemon.enable=true
-    start cs_service
+#on property:sys.mobicoredaemon.enable=true
+#    start cs_service
 
 # Bluetooth LE 2 wired Test
-service LE_dut_cmd_on /system/bin/bttestintf enable
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
+#service LE_dut_cmd_on /system/bin/bttestintf enable
+#    group bluetooth net_bt_admin
+#    disabled
+#    oneshot
 
-service LE_dut_cmd_off /system/bin/bttestintf disable
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
+#service LE_dut_cmd_off /system/bin/bttestintf disable
+#    group bluetooth net_bt_admin
+#    disabled
+#    oneshot
 
-service bttestdaemon /system/bin/bttestd
-    class main
-    user bluetooth
-    group bluetooth net_bt_admin
-    disabled
-    oneshot
+#service bttestdaemon /system/bin/bttestd
+#    class main
+#    user bluetooth
+#    group bluetooth net_bt_admin
+#    disabled
+#    oneshot
 
 # Charger
 service battery_charger /charger
@@ -707,44 +707,44 @@ service battery_charger /charger
     seclabel u:r:healthd:s0
 
 # SecEDS
-service TvoutService_C /system/bin/bintvoutservice
-     class main
-     user system
-     group graphics
-on property:ro.SecEDS.enable=false
-    stop TvoutService_C
+#service TvoutService_C /system/bin/bintvoutservice
+#     class main
+#     user system
+#     group graphics
+#on property:ro.SecEDS.enable=false
+#    stop TvoutService_C
 
 service sdumpstate /system/bin/dumpstate -P
     class main
     disabled
     oneshot
 #RIL
-service DR-daemon /system/bin/ddexe
-    class main
-    user root
-    group system radio inet net_raw
+#service DR-daemon /system/bin/ddexe
+#    class main
+#    user root
+#    group system radio inet net_raw
 
-service SMD-daemon /system/bin/smdexe
-    class main
-    user root
-    group system radio inet net_raw
+#service SMD-daemon /system/bin/smdexe
+#    class main
+#    user root
+#    group system radio inet net_raw
 
-service BCS-daemon /system/bin/connfwexe
-    class main
-    user root
-    group system radio inet net_raw
+#service BCS-daemon /system/bin/connfwexe
+#    class main
+#    user root
+#    group system radio inet net_raw
 
 # AT Distributor for factory test
-service at_distributor /system/bin/at_distributor
-    class main
-    user root
-    group radio log
+#service at_distributor /system/bin/at_distributor
+#    class main
+#    user root
+#    group radio log
 
 # Modem Logging daemon
-service ML-daemon /system/bin/mlexe
-    class main
-    user root
-    group system radio inet net_raw
+#service ML-daemon /system/bin/mlexe
+#    class main
+#    user root
+#    group system radio inet net_raw
 
 # Create camera ID file for Exynos camera HAL
 service camera_id /system/bin/sh /system/etc/init.exynos.cam.sh
