@@ -1,148 +1,143 @@
-# Architecture
-TARGET_ARCH := arm
-TARGET_BOARD_PLATFORM := exynos5
-TARGET_CPU_ABI := armeabi-v7a
-TARGET_CPU_ABI2 := armeabi
-TARGET_ARCH_VARIANT := armv7-a-neon
-TARGET_CPU_VARIANT := cortex-a7
-TARGET_CPU_SMP := true
-ARCH_ARM_HAVE_TLS_REGISTER := true
+COMMON_PATH := device/samsung/universal5260-common
 
-# Audio
-BOARD_USE_ALP_AUDIO := true
-BOARD_USE_SEIREN_AUDIO := true
-TARGET_NEEDS_PLATFORM_TEXT_RELOCATIONS := true
+# true for full rom - false for recovery only
+BUILDING_ROM := false
 
-# Bluetooth
-BOARD_HAVE_BLUETOOTH := true
-BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_CUSTOM_BT_CONFIG := device/samsung/smdk5260-common/bluetooth/libbt_vndcfg.txt
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/smdk5260-common/bluetooth
+# true for build twrp - false for lineage recovery
+BUILDING_TWRP := true
+
+ifeq ($(BUILDING_TWRP),true)
+RECOVERY_VARIANT := twrp
+endif
+
+ifeq ($(RECOVERY_VARIANT),twrp)
+TW_EXCLUDE_BASH := true
+TW_EXCLUDE_TWRPAPP := true
+TW_EXCLUDE_TZDATA := true
+TW_INTERNAL_STORAGE_PATH := /data/media
+TW_INTERNAL_STORAGE_MOUNT_POINT := sdcard
+TW_EXTERNAL_STORAGE_PATH := /external_sd
+TW_EXTERNAL_STORAGE_MOUNT_POINT := external_sd
+TW_NO_USB_STORAGE := true
+TW_DEFAULT_EXTERNAL_STORAGE := true
+TW_HAS_DOWNLOAD_MODE := true
+TW_BRIGHTNESS_PATH := "/sys/class/backlight/panel/brightness"
+TW_MAX_BRIGHTNESS := 255
+TW_NO_CPU_TEMP := true
+TW_NO_REBOOT_BOOTLOADER := true
+TW_EXCLUDE_SUPERSU := true
+TARGET_RECOVERY_FSTAB := $(COMMON_PATH)/ramdisk/etc/fstab.universal5260
+TARGET_KERNEL_CONFIG := lineageos_recovery_defconfig
+else
+TARGET_RECOVERY_FSTAB := $(COMMON_PATH)/ramdisk/etc/fstab.universal5260
+TARGET_KERNEL_CONFIG := lineageos_recovery_defconfig
+endif
+
+RECOVERY_GRAPHICS_USE_LINELENGTH := true
+DEVICE_RESOLUTION := 720x1280
+BOARD_HAS_NO_REAL_SDCARD := true
+RECOVERY_SDCARD_ON_DATA := true
+LZMA_RAMDISK_TARGETS := recovery
+ALLOW_MISSING_DEPENDENCIES=true
+
+# Dexpreopt
+ifeq ($(HOST_OS),linux)
+  ifneq ($(TARGET_BUILD_VARIANT),eng)
+    WITH_DEXPREOPT_BOOT_IMG_AND_SYSTEM_SERVER_ONLY := false
+    WITH_DEXPREOPT := true
+  endif
+endif
 
 # Board
 TARGET_BOOTLOADER_BOARD_NAME := universal5260
-TARGET_BOARD_PLATFORM_GPU := mali-T624
 TARGET_NO_RADIOIMAGE := true
 TARGET_NO_BOOTLOADER := true
-TARGET_SLSI_VARIANT := cm
+TARGET_SLSI_VARIANT := bsp
 TARGET_SOC := exynos5260
+BOARD_VENDOR := samsung
 
-# Bootanimation
-TARGET_SCREEN_WIDTH := 720
-TARGET_SCREEN_HEIGHT := 1280
-TARGET_BOOTANIMATION_PRELOAD := true
-TARGET_BOOTANIMATION_TEXTURE_CACHE := true
-
-# Camera
-BOARD_NEEDS_MEMORYHEAPION := true
-BOARD_GLOBAL_CFLAGS += -DDISABLE_HW_ID_MATCH_CHECK
-BOARD_GLOBAL_CFLAGS += -DSAMSUNG_CAMERA_HARDWARE
-BOARD_GLOBAL_CFLAGS += -DADD_LEGACY_ACQUIRE_BUFFER_SYMBOL
-BOARD_GLOBAL_CFLAGS += -DSAMSUNG_DVFS
-TARGET_HAS_LEGACY_CAMERA_HAL1 := true
-
-# Camera: portrait orientation
-BOARD_CAMERA_FRONT_ROTATION := 270
-BOARD_CAMERA_BACK_ROTATION := 90
-
-# Charger
-BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charging
-BOARD_CHARGER_SHOW_PERCENTAGE := true
-RED_LED_PATH := "/sys/class/leds/led_r/brightness"
-GREEN_LED_PATH := "/sys/class/leds/led_g/brightness"
-BLUE_LED_PATH := "/sys/class/leds/led_b/brightness"
+# Backlight
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
-CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
 
-# CMHW
-BOARD_HARDWARE_CLASS := device/samsung/smdk5260-common/cmhw
-BOARD_HARDWARE_CLASS := hardware/samsung/cmhw
+# Binder
+TARGET_USES_64_BIT_BINDER := true
 
-# Exynos display
-BOARD_USES_VIRTUAL_DISPLAY := true
+# Filesystems
+BOARD_SYSTEMIMAGE_JOURNAL_SIZE := 0
+TARGET_USERIMAGES_USE_EXT4 := true
 
-# FIMG2D
-BOARD_USES_SKIA_FIMGAPI := true
-
-# Force the screenshot path to CPU consumer (fix glitches & camera)
-# Dont remove this !!!
-TARGET_FORCE_SCREENSHOT_CPU_PATH := true
-
-# frameworks/native/services/surfaceflinger
-# Android keeps 2 surface buffers at all time in case the hwcomposer
-# misses the time to swap buffers (in cases where it takes 16ms or
-# less). Use 3 to avoid timing issues.
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+# Graphics
+BOARD_USES_EXYNOS5_COMMON_GRALLOC := true
+TARGET_ADDITIONAL_GRALLOC_10_USAGE_BITS := 0x2000
 
 # (G)SCALER
 BOARD_USES_SCALER := true
-BOARD_USES_DT := true
-BOARD_USES_DT_SHORTNAME := true
+BOARD_USES_GSC_VIDEO := true
+BOARD_USES_ONLY_GSC0_GSC1 := true
 
-# GPU
-USE_OPENGL_RENDERER := true
-TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK := true
-#OVERRIDE_RS_DRIVER := libRSDriverArm.so
-
-# HWCServices
-BOARD_USES_HWC_SERVICES := true
-
-# HDMI
-BOARD_USES_OLD_HDMI := true
+# Ignore warnings
+BUILD_BROKEN_DUP_RULES := true
 
 # Include path
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/smdk5260-common/include
+TARGET_SPECIFIC_HEADER_PATH := $(COMMON_PATH)/include
 
 # Kernel
-BOARD_KERNEL_CMDLINE := 
 BOARD_KERNEL_BASE := 0x10000000
 BOARD_KERNEL_PAGESIZE := 2048
-TARGET_KERNEL_SOURCE := kernel/samsung/smdk5260
-BOARD_CUSTOM_BOOTIMG_MK := device/samsung/smdk5260-common/mkbootimg.mk
-KERNEL_TOOLCHAIN := $(ANDROID_BUILD_TOP)/prebuilts/gcc/$(HOST_OS)-x86/arm/arm-eabi-4.8/bin
-KERNEL_TOOLCHAIN_PREFIX := arm-eabi-
-
-# Mixer
-BOARD_USE_BGRA_8888_FB := true
+TARGET_KERNEL_SOURCE := kernel/samsung/exynos5260
+BOARD_CUSTOM_BOOTIMG_MK := hardware/samsung/mkbootimg.mk
+BOARD_CUSTOM_BOOTIMG := true
+BOARD_KERNEL_IMAGE_NAME := zImage
+TARGET_LINUX_KERNEL_VERSION := 3.4
 
 # Partitions
 BOARD_FLASH_BLOCK_SIZE := 131072
 BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := ext4
-TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_USERIMAGES_USE_F2FS := true
 BOARD_HAS_LARGE_FILESYSTEM := true
 BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
 #BOARD_RECOVERYIMAGE_PARTITION_SIZE := 8388608
 BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2401239040
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 12629049344
+# 12629049344 - 16384 <encryption footer>
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 12629032960
 BOARD_CACHEIMAGE_PARTITION_SIZE := 209715200
 
-# PowerHAL
+# Partitions
+BOARD_ROOT_EXTRA_FOLDERS := efs persist
+
+# Power
 TARGET_POWERHAL_VARIANT := samsung
 
-# Properties
-TARGET_SYSTEM_PROP += device/samsung/smdk5260-common/system.prop
-
 # Recovery
-BOARD_HAS_NO_SELECT_BUTTON := true
-TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
-BOARD_HAS_NO_MISC_PARTITION := true
-BOARD_SUPPRESS_EMMC_WIPE := true
-BOARD_UMS_LUNFILE := "/sys/class/android_usb/android0/f_mass_storage/lun/file"
-TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/platform/exynos-dwc3.0/exynos-ss-udc.0/gadget/lun0/file"
-BOARD_USES_MMCUTILS := true
-BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_23x41.h\"
 BOARD_RECOVERY_SWIPE := true
-TARGET_RECOVERY_FSTAB := device/samsung/smdk5260-common/rootdir/etc/fstab.universal5260
 
-# SELinux
-BOARD_SEPOLICY_DIRS := \
-	device/samsung/smdk5260-common/sepolicy
+ifeq ($(BUILDING_ROM),true)
 
-# Samsung LSI OpenMAX
-BOARD_USE_SAMSUNG_COLORFORMAT_NV21 := true
+# Audio
+TARGET_AUDIOHAL_VARIANT := samsung
+USE_XML_AUDIO_POLICY_CONF := 1
 
-# Samsung OpenMAX Video
+# Bluetooth
+BOARD_HAVE_BLUETOOTH := true
+BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_HAVE_SAMSUNG_BLUETOOTH := true
+BOARD_BLUEDROID_VENDOR_CONF := $(COMMON_PATH)/bluetooth/libbt_vndcfg.txt
+
+# Camera
+TARGET_HAS_LEGACY_CAMERA_HAL1 := true
+
+# HDMI
+BOARD_HDMI_INCAPABLE := true
+
+# HIDL
+DEVICE_MANIFEST_FILE := $(COMMON_PATH)/manifest.xml
+
+# FIMG2D
+BOARD_USES_SKIA_FIMGAPI := true
+
+# Keymaster
+BOARD_USES_TRUST_KEYMASTER := true
+
+# Samsung  OpenMAX Video
 BOARD_USE_STOREMETADATA := true
 BOARD_USE_METADATABUFFERTYPE := true
 BOARD_USE_DMA_BUF := true
@@ -150,37 +145,53 @@ BOARD_USE_ANB_OUTBUF_SHARE := true
 BOARD_USE_IMPROVED_BUFFER := true
 BOARD_USE_NON_CACHED_GRAPHICBUFFER := true
 BOARD_USE_GSC_RGB_ENCODER := true
-BOARD_USE_CSC_HW := true
+BOARD_USE_CSC_HW := false
 BOARD_USE_QOS_CTRL := false
 BOARD_USE_S3D_SUPPORT := true
+BOARD_USE_TIMESTAMP_REORDER_SUPPORT := false
+BOARD_USE_DEINTERLACING_SUPPORT := false
 BOARD_USE_VP8ENC_SUPPORT := true
-TARGET_OMX_LEGACY_RESCALING := true
+BOARD_USE_HEVCDEC_SUPPORT := true
+BOARD_USE_HEVCENC_SUPPORT := true
+BOARD_USE_HEVC_HWIP := false
+BOARD_USE_VP9DEC_SUPPORT := true
+BOARD_USE_VP9ENC_SUPPORT := false
+BOARD_USE_CUSTOM_COMPONENT_SUPPORT := true
+BOARD_USE_VIDEO_EXT_FOR_WFD_HDCP := false
+BOARD_USE_SINGLE_PLANE_IN_DRM := false
 
-# Sensors
-TARGET_NO_SENSOR_PERMISSION_CHECK := true
+# Seccomp filters
+BOARD_SECCOMP_POLICY += $(COMMON_PATH)/seccomp
 
-# Radio
-BOARD_VENDOR := samsung
-BOARD_MOBILEDATA_INTERFACE_NAME := "rmnet0"
-BOARD_RIL_CLASS := ../../../device/samsung/smdk5260-common/ril
+# SELinux
+include device/lineage/sepolicy/exynos/sepolicy.mk
+BOARD_SEPOLICY_TEE_FLAVOR := mobicore
+include device/samsung_slsi/sepolicy/sepolicy.mk
+BOARD_VENDOR_SEPOLICY_DIRS += $(COMMON_PATH)/sepolicy/vendor
+BOARD_PLAT_PRIVATE_SEPOLICY_DIR += $(COMMON_PATH)/sepolicy/private
 
-# Webkit
-ENABLE_WEBGL := true
+# For legacy HAL1 camera
+SELINUX_IGNORE_NEVERALLOWS := true
 
-# WFD
-BOARD_USES_WFD := true
-
-# Wifi Macloader
-BOARD_HAVE_SAMSUNG_WIFI := true
+# Shims
+TARGET_LD_SHIM_LIBS += \
+    /vendor/lib/egl/libGLES_mali.so|/vendor/lib/libgutils.so \
+    /vendor/lib/libexynoscamera.so|/vendor/lib/libshim_camera.so
 
 # Wifi
 BOARD_WLAN_DEVICE                := bcmdhd
 BOARD_HAVE_SAMSUNG_WIFI          := true
 BOARD_HOSTAPD_DRIVER             := NL80211
-BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_${BOARD_WLAN_DEVICE}
+BOARD_HOSTAPD_PRIVATE_LIB        := lib_driver_cmd_bcmdhd
 BOARD_WPA_SUPPLICANT_DRIVER      := NL80211
-BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_${BOARD_WLAN_DEVICE}
+BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
 WPA_SUPPLICANT_VERSION           := VER_0_8_X
 WIFI_DRIVER_FW_PATH_PARAM        := "/sys/module/dhd/parameters/firmware_path"
 WIFI_DRIVER_FW_PATH_STA          := "/system/etc/wifi/bcmdhd_sta.bin"
 WIFI_DRIVER_FW_PATH_AP           := "/system/etc/wifi/bcmdhd_apsta.bin"
+WIFI_HIDL_FEATURE_DISABLE_AP_MAC_RANDOMIZATION := true
+
+include vendor/samsung/hl3g/hl3g-vendor.mk
+include vendor/samsung/universal5260-common/universal5260-common-vendor.mk
+
+endif

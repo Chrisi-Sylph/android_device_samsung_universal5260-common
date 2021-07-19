@@ -1,183 +1,225 @@
-# Min. lang
-$(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
-
-# Samsung vendor
-$(call inherit-product-if-exists, vendor/samsung/smdk5260-common/smdk5260-common-vendor.mk)
-
-# Dalvik VM specific for devices with 2048 MB of RAM
-$(call inherit-product-if-exists, frameworks/native/build/phone-xhdpi-2048-dalvik-heap.mk)
-
-# call Samsung LSI board support package
-$(call inherit-product, hardware/samsung_slsi-cm/exynos5/exynos5.mk)
-$(call inherit-product, hardware/samsung_slsi-cm/exynos5260/exynos5260.mk)
+COMMON_PATH := device/samsung/universal5260-common
 
 # Overlays
-DEVICE_PACKAGE_OVERLAYS += device/samsung/smdk5260-common/overlay
+DEVICE_PACKAGE_OVERLAYS += \
+    $(COMMON_PATH)/overlay \
+    $(COMMON_PATH)/overlay-lineage
 
-# Device uses high-density artwork where available
-PRODUCT_AAPT_CONFIG := normal
-PRODUCT_AAPT_PREF_CONFIG := xhdpi
-PRODUCT_AAPT_PREBUILT_DPI := xhdpi hdpi
+PRODUCT_ENFORCE_RRO_TARGETS := *
+PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += \
+    device/samsung/universal5260-common/overlay-lineage/lineage-sdk
+
+# Boot animation
+TARGET_BOOTANIMATION_PRELOAD := true
+TARGET_BOOTANIMATION_TEXTURE_CACHE := true
+TARGET_BOOTANIMATION_HALF_RES := true
+
+# APEX
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/configs/ld.config.txt:$(TARGET_COPY_OUT_VENDOR)/etc/swcodec/ld.config.txt
 
 # Audio
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/audio/audio_effects.conf:system/vendor/etc/audio_effects.conf \
-    $(LOCAL_PATH)/configs/audio/ysound.xml:system/etc/ysound.xml
-
 PRODUCT_PACKAGES += \
-    audio.a2dp.default \
-    audio.usb.default \
-    audio.r_submix.default \
-    audio.primary.default \
-    libaudio-resampler \
-    libtinyxml \
     audio.primary.universal5260 \
-    libtinyalsa
+    audio.a2dp.default \
+    audio.r_submix.default \
+    audio.usb.default \
+    tinymix \
+    android.hardware.audio@2.0-impl \
+    android.hardware.audio@2.0-service \
+    android.hardware.audio.effect@2.0-impl
+
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/configs/audio/audio_effects.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects.xml \
+    $(COMMON_PATH)/configs/audio/audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/audio_policy_volumes.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_volumes.xml \
+    frameworks/av/services/audiopolicy/config/a2dp_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/a2dp_audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/default_volume_tables.xml:$(TARGET_COPY_OUT_VENDOR)/etc/default_volume_tables.xml \
+    frameworks/av/services/audiopolicy/config/r_submix_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/r_submix_audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/usb_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/usb_audio_policy_configuration.xml
+
+# Bluetooth
+PRODUCT_PACKAGES += \
+    android.hardware.bluetooth@1.0-impl \
+    android.hardware.bluetooth@1.0-service \
+    libbt-vendor
 
 # Camera
 PRODUCT_PACKAGES += \
+    android.hardware.camera.provider@2.4-impl.exynos5260 \
+    android.hardware.camera.provider@2.4-service \
+    camera.device@1.0-impl.exynos5260 \
     camera.universal5260
 
-# Charger
+# IR
 PRODUCT_PACKAGES += \
-    charger \
-    charger_res_images \
-    cm_charger_res_images \
+    android.hardware.ir@1.0-service.samsung
 
-# Filesystem
+# DRM
 PRODUCT_PACKAGES += \
-    setup_fs \
-    make_ext4fs \
-    e2fsck 
+    android.hardware.drm@1.0-impl \
+    android.hardware.drm@1.0-service \
+    android.hardware.drm@1.2-service.clearkey
 
-# GPU
+# GNNS
 PRODUCT_PACKAGES += \
-    gralloc.exynos5 \
-    libion \
-    hwcomposer.exynos5 \
-    memtrack.exynos5 \
-    libstlport \
+    android.hardware.gnss@1.0-impl.universal5260 \
+    android.hardware.gnss@1.0-service.universal5260
 
-# Gps
 PRODUCT_COPY_FILES += \
-   $(LOCAL_PATH)/configs/gps/gps.xml:system/etc/gps.xml
+    $(COMMON_PATH)/configs/gps/gps.conf:$(TARGET_COPY_OUT_SYSTEM)/etc/gps.conf
 
-PRODUCT_PACKAGES += \
-    libdmitry
 
-# Init scripts
+# Graphics
 PRODUCT_PACKAGES += \
-    init.exynos.cam.sh
+    libion \
+    libfimg \
+    android.hardware.graphics.allocator@2.0-impl \
+    android.hardware.graphics.allocator@2.0-service \
+    android.hardware.graphics.composer@2.1-impl \
+    android.hardware.graphics.mapper@2.0-impl-2.1 \
+    libhwc2on1adapter
 
+# Health
 PRODUCT_PACKAGES += \
-    fstab.universal5260 \
-    init.universal5260.usb.rc \
-    init.universal5260.rc \
-    init.wifi.rc \
-    ueventd.universal5260.rc
+    android.hardware.health@2.0-impl \
+    android.hardware.health@2.0-service
+
+# Keymaster
+PRODUCT_PACKAGES += \
+    keystore.exynos5 \
+    android.hardware.keymaster@3.0-impl \
+    android.hardware.keymaster@3.0-service
 
 # Lights
 PRODUCT_PACKAGES += \
-    lights.universal5260
+    android.hardware.light@2.0-service.samsung
 
-# Mobicore
+# Livedisplay
 PRODUCT_PACKAGES += \
-    mcDriverDaemon \
+    vendor.lineage.livedisplay@2.0-service.samsung-exynos
 
-## OMX
+# Media
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/media/media_codecs.xml:system/etc/media_codecs.xml \
-    $(LOCAL_PATH)/configs/media/media_codecs_ffmpeg.xml:system/etc/media_codecs_ffmpeg.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml  \
+    $(COMMON_PATH)/configs/media/media_codecs.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs.xml \
+    $(COMMON_PATH)/configs/media/media_codecs_performance.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_performance.xml \
+    $(COMMON_PATH)/configs/media/media_profiles_V1_0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_profiles_V1_0.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_audio.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_telephony.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_google_video_le.xml
 
-# Audio codecs
+# Memory
 PRODUCT_PACKAGES += \
-    libOMX.Exynos.AAC.Decoder \
-    libOMX.Exynos.MP3.Decoder \
-    libOMX.Exynos.WMA.Encoder \
-    libOMX.Exynos.VP8.Encoder
+    android.hardware.memtrack@1.0-impl \
+    android.hardware.memtrack@1.0-service
 
-# Stagefright and device specific modules
+# Power
 PRODUCT_PACKAGES += \
-    libstagefrighthw \
-    libExynosOMX_Core
+    android.hardware.power@1.0-service.universal5260
 
-# Video codecs
-PRODUCT_PACKAGES += \
-    libOMX.Exynos.AVC.Decoder \
-    libOMX.Exynos.MPEG4.Decoder \
-    libOMX.Exynos.MPEG4.Encoder \
-    libOMX.Exynos.VP8.Decoder \
-    libOMX.Exynos.WMV.Decoder
-
-# PERMISSONS
+# Permissions
 PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml \
-    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
-    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
-    frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
-    frameworks/native/data/etc/android.hardware.consumerir.xml:system/etc/permissions/android.hardware.consumerir.xml \
-    frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
-    frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
-    frameworks/native/data/etc/android.hardware.sensor.barometer.xml:system/etc/permissions/android.hardware.sensor.barometer.xml \
-    frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml \
-    frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
-    frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
-    frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
-    frameworks/native/data/etc/android.hardware.sensor.stepcounter.xml:system/etc/permissions/android.hardware.sensor.stepcounter.xml \
-    frameworks/native/data/etc/android.hardware.sensor.stepdetector.xml:system/etc/permissions/android.hardware.sensor.stepdetector.xml \
-    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
-    frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
-    frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
-    frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
-    frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
-    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
-    frameworks/native/data/etc/android.software.sip.xml:system/etc/permissions/android.software.sip.xml \
-    frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml \
-    frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
+    frameworks/native/data/etc/android.hardware.bluetooth.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth.xml \
+    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.bluetooth_le.xml \
+    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.flash-autofocus.xml \
+    frameworks/native/data/etc/android.hardware.camera.front.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.camera.front.xml \
+    frameworks/native/data/etc/android.hardware.consumerir.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.consumerir.xml \
+    frameworks/native/data/etc/android.hardware.ethernet.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.ethernet.xml \
+    frameworks/native/data/etc/android.hardware.location.gps.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.location.gps.xml \
+    frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.accelerometer.xml \
+    frameworks/native/data/etc/android.hardware.sensor.barometer.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.barometer.xml \
+    frameworks/native/data/etc/android.hardware.sensor.compass.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.compass.xml \
+    frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.gyroscope.xml \
+    frameworks/native/data/etc/android.hardware.sensor.light.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.light.xml \
+    frameworks/native/data/etc/android.hardware.sensor.proximity.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.sensor.proximity.xml \
+    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml \
+    frameworks/native/data/etc/android.hardware.usb.accessory.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.usb.accessory.xml \
+    frameworks/native/data/etc/android.hardware.usb.host.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.usb.host.xml \
+    frameworks/native/data/etc/android.hardware.wifi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.xml \
+    frameworks/native/data/etc/android.hardware.wifi.direct.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.wifi.direct.xml \
+    frameworks/native/data/etc/android.software.freeform_window_management.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.freeform_window_management.xml \
+    frameworks/native/data/etc/android.software.midi.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.midi.xml \
+    frameworks/native/data/etc/android.software.sip.voip.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.sip.voip.xml \
+    frameworks/native/data/etc/handheld_core_hardware.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/handheld_core_hardware.xml
 
-# PowerHAL
+# Ramdisk
 PRODUCT_PACKAGES += \
-    power.universal5260
+    fstab.universal5260 \
+    fstab.ramdisk \
+    init.samsung.rc \
+    init.universal5260.rc \
+    init.recovery.universal5260.rc \
+    init.universal5260.usb.rc \
+    init.universal5260.wifi.rc \
+    ueventd.universal5260.rc
 
-# RIL
+# RenderScript
 PRODUCT_PACKAGES += \
-    libril \
-    librilutils \
-    rild \
-    libxml2 \
-    libprotobuf-cpp-full \
+    android.hardware.renderscript@1.0-impl
+
+# SEC
+PRODUCT_PACKAGES += \
+    libsecnativefeature \
     libsecril-client \
-    libsecril-client-sap \
-    modemloader
+    libsecril-client-sap
 
-# Samsung Packages
+# Sensors
 PRODUCT_PACKAGES += \
-    SamsungServiceMode \
-    AdvancedDisplay \
+    android.hardware.sensors@1.0-impl.exynos5260 \
+    android.hardware.sensors@1.0-service.exynos5260 \
+    sensors.exynos5
 
-# Set default USB interface
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=mtp
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/hardware/sensors/_hals.conf:$(TARGET_COPY_OUT_VENDOR)/etc/sensors/_hals.conf
 
-# Torch
+# Shims
 PRODUCT_PACKAGES += \
-    Torch \
+    libshim_camera \
+    libgutils
 
-# USB Accesory
+# TextClassifier
 PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory
+    textclassifier.bundle1
 
-## WiFi
+# Touch features
 PRODUCT_PACKAGES += \
-    macloader \
+    vendor.lineage.touch@1.0-service.samsung
+
+# Trust HAL
+PRODUCT_PACKAGES += \
+    vendor.lineage.trust@1.0-service
+
+# USB
+PRODUCT_PACKAGES += \
+    android.hardware.usb@1.0-service.basic
+
+# Vibrator
+PRODUCT_PACKAGES += \
+    android.hardware.vibrator@1.0-impl \
+    android.hardware.vibrator@1.0-service
+
+# Wifi
+PRODUCT_PACKAGES += \
+    wifiloader \
     hostapd \
+    wificond \
+    wifilogd \
+    wlutil \
     libwpa_client \
-    wpa_supplicant
+    wpa_supplicant \
+    wpa_supplicant.conf \
+    android.hardware.wifi@1.0-service.legacy
 
-# external/wpa_supplicant_8/wpa_supplicant/wpa_supplicant_conf.mk
-PRODUCT_PACKAGES += \
-    wpa_supplicant.conf
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/configs/wifi/p2p_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/p2p_supplicant_overlay.conf \
+    $(COMMON_PATH)/configs/wifi/wpa_supplicant_overlay.conf:$(TARGET_COPY_OUT_VENDOR)/etc/wifi/wpa_supplicant_overlay.conf
+
+# Properties
+-include $(COMMON_PATH)/system_prop.mk
+
+# call Samsung LSI board support package
+$(call inherit-product, hardware/samsung_slsi/exynos5/exynos5.mk)
+$(call inherit-product, hardware/samsung_slsi/exynos5260/exynos5260.mk)
+
+# call the proprietary setup
+$(call inherit-product-if-exists, vendor/samsung/universal5260-common/universal5260-common-vendor.mk)
